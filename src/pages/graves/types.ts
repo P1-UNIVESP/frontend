@@ -15,7 +15,9 @@ export const createGraveBodySchema = z.object({
   ownerId: z.string().uuid().optional(),
 })
 
-export const updateGraveBodySchema = createGraveBodySchema
+export const updateGraveBodySchema = createGraveBodySchema.extend({
+  ownerId: z.string().uuid().nullable().optional(),
+})
 
 export type CreateGraveBody = z.infer<typeof createGraveBodySchema>
 export type UpdateGraveBody = z.infer<typeof updateGraveBodySchema>
@@ -28,8 +30,9 @@ export type Owner = {
   phone: string | null
 }
 
-export type Plot = CreateGraveBody & {
+export type Plot = Omit<CreateGraveBody, "ownerId"> & {
   id: string
+  ownerId?: string | null
 }
 
 // For option select/combobox

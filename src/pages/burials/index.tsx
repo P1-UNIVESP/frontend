@@ -106,7 +106,7 @@ export default function BurialsPage() {
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <Input
               type="search"
-              placeholder="Buscar por sepultura ou obito"
+              placeholder="Buscar por sepultura ou óbito"
               value={localSearch}
               onChange={(event) => setLocalSearch(event.target.value)}
               className="sm:max-w-md"
@@ -205,7 +205,7 @@ export default function BurialsPage() {
           <div className="mt-4 flex items-center justify-between gap-4 px-2 text-sm text-muted-foreground">
             <span>
               {total > 0
-                ? `Pagina ${currentPage} de ${totalPages} - ${total} registro${total !== 1 ? "s" : ""}`
+                ? `Página ${currentPage} de ${totalPages} - ${total} registro${total !== 1 ? "s" : ""}`
                 : "Nenhum registro"}
             </span>
             <div className="flex items-center gap-2">
@@ -225,7 +225,7 @@ export default function BurialsPage() {
                 disabled={offset + limit >= total || isFetching}
                 onClick={() => setOffset(offset + limit)}
               >
-                Proximo
+                Próximo
               </Button>
             </div>
           </div>

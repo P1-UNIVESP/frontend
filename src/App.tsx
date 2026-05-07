@@ -1,10 +1,17 @@
-
-import { Archive, PanelLeftIcon } from "lucide-react"
+import { useState } from "react"
+import { Archive, LogOut } from "lucide-react"
 import { NuqsAdapter } from "nuqs/adapters/react-router/v7"
-import { BrowserRouter, NavLink, useLocation } from "react-router-dom"
+import {
+  BrowserRouter,
+  NavLink,
+  Route,
+  Routes,
+  useLocation,
+  useNavigate,
+} from "react-router-dom"
 import { Toaster } from "sonner"
 
-import { Separator } from "@/components/ui/separator"
+import { Button } from "@/components/ui/button"
 import {
   Sidebar,
   SidebarContent,
@@ -20,11 +27,36 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { authClient } from "@/lib/auth-client"
+import { isAdminUser } from "@/lib/auth-utils"
+import { queryClient } from "@/lib/react-query"
+import LoginPage from "@/pages/login"
 import { AppRoutes } from "@/routes"
 import { menuItems } from "@/routes/menu-items"
+import { RequireAuth } from "@/routes/RequireAuth"
 
 function AppShell() {
   const location = useLocation()
+  const navigate = useNavigate()
+  const session = authClient.useSession()
+  const [isSigningOut, setIsSigningOut] = useState(false)
+
+  const user = session.data?.user
+  const visibleMenuItems = menuItems.filter(
+    (item) => !item.adminOnly || isAdminUser(user),
+  )
+
+  async function handleSignOut() {
+    setIsSigningOut(true)
+
+    try {
+      await authClient.signOut()
+      queryClient.clear()
+      navigate("/login", { replace: true })
+    } finally {
+      setIsSigningOut(false)
+    }
+  }
 
   return (
     <SidebarProvider>
@@ -48,7 +80,7 @@ function AppShell() {
             <SidebarGroupLabel>Navegação</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {menuItems.map((item) => (
+                {visibleMenuItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton
                       asChild
@@ -69,9 +101,24 @@ function AppShell() {
       </Sidebar>
 
       <SidebarInset>
-        <header className="sticky top-0 z-10 flex h-16 items-center gap-3 border-b bg-background/95 px-4 backdrop-blur supports-backdrop-filter:bg-background/60">
+        <header className="sticky top-0 z-10 flex h-16 items-center justify-between gap-3 border-b bg-background/95 px-4 backdrop-blur supports-backdrop-filter:bg-background/60">
           <SidebarTrigger />
-          {/* <Separator orientation="vertical" className="h-5" /> */}
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="hidden min-w-0 text-right sm:block">
+              <p className="truncate text-sm font-medium">{user?.name ?? "Usuário"}</p>
+              <p className="truncate text-xs text-muted-foreground">{user?.email}</p>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleSignOut}
+              disabled={isSigningOut}
+            >
+              <LogOut className="size-4" />
+              Sair
+            </Button>
+          </div>
         </header>
 
         <main className="min-h-dvh bg-muted/20 p-4 sm:p-6">
@@ -87,8 +134,18 @@ function App() {
     <BrowserRouter>
       <NuqsAdapter>
         <TooltipProvider>
-          <AppShell />
-         <Toaster richColors />
+          <Routes>
+            <Route path="/login" element={<LoginPage />} />
+            <Route
+              path="/*"
+              element={
+                <RequireAuth>
+                  <AppShell />
+                </RequireAuth>
+              }
+            />
+          </Routes>
+          <Toaster richColors />
         </TooltipProvider>
       </NuqsAdapter>
     </BrowserRouter>

@@ -73,7 +73,7 @@ export function RegisterOwnerModal({
   }
 
   const isEdit = mode === "edit"
-  const title = isEdit ? "Editar proprietario" : "Novo proprietario"
+  const title = isEdit ? "Editar proprietário" : "Novo proprietário"
   const description = isEdit
     ? "Atualize os dados do proprietário."
     : "Preencha os dados do proprietário."

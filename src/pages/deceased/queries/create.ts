@@ -15,11 +15,11 @@ export function useCreateDeceased() {
   return useMutation({
     mutationFn: createDeceased,
     onSuccess: () => {
-     toast.success("Obito registrado com sucesso!")
+     toast.success("óbito registrado com sucesso!")
       queryClient.invalidateQueries({ queryKey: ["deceased"] })
     },
    onError: (error) => {
-     const message = (error as any)?.response?.data?.message || "Erro ao registrar obito"
+     const message = (error as any)?.response?.data?.message || "Erro ao registrar óbito"
      toast.error(message)
    },
   })

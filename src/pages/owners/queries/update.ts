@@ -16,11 +16,11 @@ export function useUpdateOwner() {
     mutationFn: ({ id, data }: { id: string; data: UpdateOwnerBody }) =>
       updateOwner(id, data),
     onSuccess: () => {
-     toast.success("Proprietario atualizado com sucesso!")
+     toast.success("Proprietário atualizado com sucesso!")
       queryClient.invalidateQueries({ queryKey: ["owners"] })
     },
    onError: (error) => {
-     const message = (error as any)?.response?.data?.message || "Erro ao atualizar proprietario"
+     const message = (error as any)?.response?.data?.message || "Erro ao atualizar proprietário"
      toast.error(message)
    },
   })

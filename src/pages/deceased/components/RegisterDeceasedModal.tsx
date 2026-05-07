@@ -132,7 +132,7 @@ export function RegisterDeceasedModal({
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="deathDate">Data de obito</Label>
+            <Label htmlFor="deathDate">Data de óbito</Label>
             <Input
               id="deathDate"
               type="datetime-local"
@@ -148,10 +148,10 @@ export function RegisterDeceasedModal({
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="deathCertificate">Certidao de obito</Label>
+            <Label htmlFor="deathCertificate">Certidão de óbito</Label>
             <Input
               id="deathCertificate"
-              placeholder="Numero da certidao"
+              placeholder="Número da certidão"
               {...form.register("deathCertificate")}
             />
             {form.formState.errors.deathCertificate?.message ? (

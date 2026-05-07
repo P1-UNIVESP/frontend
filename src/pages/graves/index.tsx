@@ -21,7 +21,12 @@ import { ConfirmDeleteDialog } from "@/components/ConfirmDeleteDialog"
 
 import { RegisterGraveModal } from "./components/RegisterGraveModal"
 import { useCreatePlot, useDeletePlot, usePlots, useUpdatePlot } from "./queries"
-import { graveStatusOptions, graveTypeOptions, type CreateGraveBody } from "./types"
+import {
+  graveStatusOptions,
+  graveTypeOptions,
+  type CreateGraveBody,
+  type UpdateGraveBody,
+} from "./types"
 
 const DEFAULT_LIMIT = 10
 
@@ -82,11 +87,11 @@ export default function GravesPage() {
   const totalPages = Math.ceil(total / limit)
   const currentPage = Math.floor(offset / limit) + 1
 
-  function handleCreateGrave(data: CreateGraveBody) {
-    createPlotMutation.mutate(data)
+  function handleCreateGrave(data: CreateGraveBody | UpdateGraveBody) {
+    createPlotMutation.mutate(data as CreateGraveBody)
   }
 
-  function handleUpdateGrave(id: string, data: CreateGraveBody) {
+  function handleUpdateGrave(id: string, data: CreateGraveBody | UpdateGraveBody) {
     updatePlotMutation.mutate({ id, data })
   }
 
@@ -170,7 +175,7 @@ export default function GravesPage() {
                 <TableHead>Código</TableHead>
                 <TableHead>Tipo</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Capacidade</TableHead>
+                {/* <TableHead>Capacidade</TableHead> */}
                 <TableHead>Proprietário</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
@@ -200,7 +205,7 @@ export default function GravesPage() {
                     <TableCell className="font-medium">{item.code}</TableCell>
                     <TableCell>{item.type}</TableCell>
                     <TableCell>{item.status ?? "-"}</TableCell>
-                    <TableCell>{item.capacity}</TableCell>
+                    {/* <TableCell>{item.capacity}</TableCell> */}
                     <TableCell>{item.owner?.name ?? "-"}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-2">
@@ -249,7 +254,7 @@ export default function GravesPage() {
           <div className="mt-4 flex items-center justify-between gap-4 px-2 text-sm text-muted-foreground">
             <span>
               {total > 0
-                ? `Pagina ${currentPage} de ${totalPages} - ${total} registro${total !== 1 ? "s" : ""}`
+                ? `Página ${currentPage} de ${totalPages} - ${total} registro${total !== 1 ? "s" : ""}`
                 : "Nenhum registro"}
             </span>
             <div className="flex items-center gap-2">
@@ -269,7 +274,7 @@ export default function GravesPage() {
                 disabled={offset + limit >= total || isFetching}
                 onClick={() => setOffset(offset + limit)}
               >
-                Proximo
+                Próximo
               </Button>
             </div>
           </div>

@@ -17,6 +17,7 @@ export function useCreateBurial() {
     mutationFn: createBurial,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["burials"] })
+      queryClient.invalidateQueries({ queryKey: ["plots"] })
       toast.success("Sepultamento criado com sucesso!")
     },
     onError: (error: any) => {

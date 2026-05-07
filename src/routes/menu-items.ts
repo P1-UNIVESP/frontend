@@ -1,4 +1,4 @@
-import { FileText, LayoutGrid, ScrollText, Users } from "lucide-react"
+import { FileClock, FileText, LayoutGrid, ScrollText, UserCog, Users } from "lucide-react"
 
 export const menuItems = [
   {
@@ -20,5 +20,16 @@ export const menuItems = [
     title: "Proprietários",
     url: "/proprietarios",
     icon: Users,
+  },
+  {
+    title: "Histórico de proprietários",
+    url: "/historico-proprietarios",
+    icon: FileClock,
+  },
+  {
+    title: "Usuários",
+    url: "/usuarios",
+    icon: UserCog,
+    adminOnly: true,
   },
 ]

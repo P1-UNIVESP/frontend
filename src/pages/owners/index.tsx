@@ -114,10 +114,10 @@ export default function OwnersPage() {
       <section className="mx-auto flex w-full max-w-5xl flex-col gap-6">
         <header className="rounded-xl border bg-card p-6 shadow-sm">
           <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-            Gestão de proprietarios
+            Gestão de proprietários
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Busque registros e cadastre novos proprietarios.
+            Busque registros e cadastre novos proprietários.
           </p>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -161,7 +161,7 @@ export default function OwnersPage() {
                     colSpan={4}
                     className="py-10 text-center text-destructive"
                   >
-                    Erro ao carregar proprietarios.
+                    Erro ao carregar proprietários.
                   </TableCell>
                 </TableRow>
               ) : rows.length > 0 ? (
@@ -207,7 +207,7 @@ export default function OwnersPage() {
                     colSpan={4}
                     className="py-10 text-center text-muted-foreground"
                   >
-                    Nenhum proprietario encontrado.
+                    Nenhum proprietário encontrado.
                   </TableCell>
                 </TableRow>
               )}
@@ -217,7 +217,7 @@ export default function OwnersPage() {
           <div className="mt-4 flex items-center justify-between gap-4 px-2 text-sm text-muted-foreground">
             <span>
               {total > 0
-                ? `Pagina ${currentPage} de ${totalPages} — ${total} registro${total !== 1 ? "s" : ""}`
+                ? `Página ${currentPage} de ${totalPages} — ${total} registro${total !== 1 ? "s" : ""}`
                 : "Nenhum registro"}
             </span>
             <div className="flex items-center gap-2">
@@ -237,7 +237,7 @@ export default function OwnersPage() {
                 disabled={offset + limit >= total || isFetching}
                 onClick={() => setOffset(offset + limit)}
               >
-                Proximo
+                Próximo
               </Button>
             </div>
           </div>

@@ -2,7 +2,7 @@ import { useMemo, useState, type ReactNode } from "react"
 import { Check, ChevronsUpDown } from "lucide-react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -81,22 +81,28 @@ export function RegisterBurialModal({
     defaultValues: getDefaultValues(initialData),
   })
 
-  const selectedPlotId = form.watch("plotId")
-  const selectedDeceasedId = form.watch("deceasedId")
+  const selectedPlotId = useWatch({
+    control: form.control,
+    name: "plotId",
+  })
+  const selectedDeceasedId = useWatch({
+    control: form.control,
+    name: "deceasedId",
+  })
 
   const { data: plotsData, isFetching: isPlotsFetching } = usePlots({
     q: plotSearch.trim(),
     limit: 10,
     offset: 0,
   })
-  const plots = plotsData?.data ?? []
+  const plots = useMemo(() => plotsData?.data ?? [], [plotsData?.data])
 
   const { data: deceasedData, isFetching: isDeceasedFetching } = useDeceased({
     q: deceasedSearch.trim(),
     limit: 10,
     offset: 0,
   })
-  const deceasedList = deceasedData?.data ?? []
+  const deceasedList = useMemo(() => deceasedData?.data ?? [], [deceasedData?.data])
 
   const selectedPlotOption = useMemo(() => {
     if (!selectedPlotId) {
@@ -207,14 +213,19 @@ export function RegisterBurialModal({
                     <ChevronsUpDown className="ml-2 opacity-50 flex-shrink-0" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-(--radix-popover-trigger-width) p-0">
+                <PopoverContent
+                  align="start"
+                  side="bottom"
+                  avoidCollisions={false}
+                  className="w-(--radix-popover-trigger-width) p-0"
+                >
                   <Command shouldFilter={false}>
                     <CommandInput
-                      placeholder="Buscar sepultura por codigo ou tipo"
+                      placeholder="Buscar sepultura por código ou tipo"
                       value={plotSearch}
                       onValueChange={setPlotSearch}
                     />
-                    <CommandList className="max-h-[300px] md:max-h-[400px] overflow-y-auto">
+                    <CommandList className="max-h-56 min-h-20 overflow-y-auto">
                       <CommandEmpty>Nenhuma sepultura encontrada.</CommandEmpty>
                       <CommandGroup>
                         {plots.map((plot) => (
@@ -240,9 +251,9 @@ export function RegisterBurialModal({
                   </Command>
                 </PopoverContent>
               </Popover>
-              {isPlotsFetching ? (
-                <p className="text-xs text-muted-foreground">Buscando sepulturas...</p>
-              ) : null}
+              <p className="min-h-4 text-xs text-muted-foreground">
+                {isPlotsFetching ? "Buscando sepulturas..." : ""}
+              </p>
               {form.formState.errors.plotId?.message ? (
                 <p className="text-xs text-destructive">
                   {form.formState.errors.plotId.message}
@@ -251,7 +262,7 @@ export function RegisterBurialModal({
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="deceasedId">Obito</Label>
+              <Label htmlFor="deceasedId">Óbito</Label>
               <input
                 type="hidden"
                 {...form.register("deceasedId")}
@@ -272,21 +283,26 @@ export function RegisterBurialModal({
                       {selectedDeceasedOption
                         ? `${selectedDeceasedOption.name} — ${selectedDeceasedOption.deathCertificate}`
                         : selectedDeceasedId
-                          ? "Obito selecionado"
-                          : "Selecione um obito"}
+                          ? "Óbito selecionado"
+                          : "Selecione um óbito"}
                     </span>
                     <ChevronsUpDown className="ml-2 opacity-50 flex-shrink-0" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-(--radix-popover-trigger-width) p-0">
+                <PopoverContent
+                  align="start"
+                  side="bottom"
+                  avoidCollisions={false}
+                  className="w-(--radix-popover-trigger-width) p-0"
+                >
                   <Command shouldFilter={false}>
                     <CommandInput
-                      placeholder="Buscar obito por nome ou certidao"
+                      placeholder="Buscar óbito por nome ou certidão"
                       value={deceasedSearch}
                       onValueChange={setDeceasedSearch}
                     />
-                    <CommandList className="max-h-[300px] md:max-h-[400px] overflow-y-auto">
-                      <CommandEmpty>Nenhum obito encontrado.</CommandEmpty>
+                    <CommandList className="max-h-56 min-h-20 overflow-y-auto">
+                      <CommandEmpty>Nenhum óbito encontrado.</CommandEmpty>
                       <CommandGroup>
                         {deceasedList.map((deceased) => (
                           <CommandItem
@@ -311,9 +327,9 @@ export function RegisterBurialModal({
                   </Command>
                 </PopoverContent>
               </Popover>
-              {isDeceasedFetching ? (
-                <p className="text-xs text-muted-foreground">Buscando obitos...</p>
-              ) : null}
+              <p className="min-h-4 text-xs text-muted-foreground">
+                {isDeceasedFetching ? "Buscando óbitos..." : ""}
+              </p>
               {form.formState.errors.deceasedId?.message ? (
                 <p className="text-xs text-destructive">
                   {form.formState.errors.deceasedId.message}

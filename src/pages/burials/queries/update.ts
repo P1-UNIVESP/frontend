@@ -22,6 +22,7 @@ export function useUpdateBurial() {
     mutationFn: updateBurial,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["burials"] })
+      queryClient.invalidateQueries({ queryKey: ["plots"] })
       toast.success("Sepultamento atualizado com sucesso!")
     },
     onError: (error: any) => {

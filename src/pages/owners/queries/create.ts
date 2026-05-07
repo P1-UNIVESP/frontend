@@ -15,11 +15,11 @@ export function useCreateOwner() {
   return useMutation({
     mutationFn: createOwner,
     onSuccess: () => {
-     toast.success("Proprietario criado com sucesso!")
+     toast.success("Proprietário criado com sucesso!")
       queryClient.invalidateQueries({ queryKey: ["owners"] })
     },
    onError: (error) => {
-     const message = (error as any)?.response?.data?.message || "Erro ao criar proprietario"
+     const message = (error as any)?.response?.data?.message || "Erro ao criar proprietário"
      toast.error(message)
    },
   })

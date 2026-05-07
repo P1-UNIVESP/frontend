@@ -16,11 +16,11 @@ export function useUpdateDeceased() {
     mutationFn: ({ id, data }: { id: string; data: UpdateDeceasedBody }) =>
       updateDeceased(id, data),
     onSuccess: () => {
-     toast.success("Obito atualizado com sucesso!")
+     toast.success("óbito atualizado com sucesso!")
       queryClient.invalidateQueries({ queryKey: ["deceased"] })
     },
    onError: (error) => {
-     const message = (error as any)?.response?.data?.message || "Erro ao atualizar obito"
+     const message = (error as any)?.response?.data?.message || "Erro ao atualizar óbito"
      toast.error(message)
    },
   })

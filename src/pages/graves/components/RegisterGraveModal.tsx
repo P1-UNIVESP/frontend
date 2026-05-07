@@ -2,7 +2,7 @@ import { useMemo, useState, type ReactNode } from "react"
 import { Check, ChevronsUpDown } from "lucide-react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -34,12 +34,13 @@ import {
   graveStatusOptions,
   graveTypeOptions,
   type CreateGraveBody,
+  type UpdateGraveBody,
 } from "../types"
 
 type RegisterGraveModalProps = {
-  onSubmit: (data: CreateGraveBody) => void
+  onSubmit: (data: CreateGraveBody | UpdateGraveBody) => void
   mode?: "create" | "edit"
-  initialData?: CreateGraveBody
+  initialData?: UpdateGraveBody
   trigger?: ReactNode
   isLoading?: boolean
 }
@@ -50,7 +51,7 @@ const selectClassName = cn(
   "disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-input/30",
 )
 
-function getDefaultValues(initialData?: CreateGraveBody): CreateGraveBody {
+function getDefaultValues(initialData?: UpdateGraveBody): CreateGraveBody {
   if (!initialData) {
     return {
       code: "",
@@ -61,7 +62,10 @@ function getDefaultValues(initialData?: CreateGraveBody): CreateGraveBody {
     }
   }
 
-  return initialData
+  return {
+    ...initialData,
+    ownerId: initialData.ownerId ?? undefined,
+  }
 }
 
 export function RegisterGraveModal({
@@ -80,14 +84,17 @@ export function RegisterGraveModal({
     defaultValues: getDefaultValues(initialData),
   })
 
-  const selectedOwnerId = form.watch("ownerId")
+  const selectedOwnerId = useWatch({
+    control: form.control,
+    name: "ownerId",
+  })
 
   const { data: ownersData, isFetching: isOwnersFetching } = useOwners({
     q: ownerSearch.trim(),
     limit: 10,
     offset: 0,
   })
-  const owners = ownersData?.data ?? []
+  const owners = useMemo(() => ownersData?.data ?? [], [ownersData?.data])
 
   const selectedOwnerOption = useMemo(() => {
     if (!selectedOwnerId) {
@@ -112,6 +119,20 @@ export function RegisterGraveModal({
   }
 
   function handleSubmit(data: CreateGraveBody) {
+    if (!data.ownerId) {
+      const payload = { ...data }
+      delete payload.ownerId
+
+      if (isEdit) {
+        onSubmit({ ...payload, ownerId: null })
+      } else {
+        onSubmit(payload)
+      }
+
+      handleOpenChange(false)
+      return
+    }
+
     onSubmit(data)
     handleOpenChange(false)
   }
@@ -129,7 +150,7 @@ export function RegisterGraveModal({
         {trigger ?? <Button type="button">Registrar nova sepultura</Button>}
       </DialogTrigger>
 
-      <DialogContent className="max-w-6xl">
+      <DialogContent className="min-w-6xl">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>{description}</DialogDescription>
@@ -140,7 +161,7 @@ export function RegisterGraveModal({
           className="grid gap-4"
         >
           <div className="grid gap-2">
-            <Label htmlFor="code">Codigo</Label>
+            <Label htmlFor="code">Código</Label>
             <Input
               id="code"
               placeholder="Ex.: QD-A-12"
@@ -206,7 +227,7 @@ export function RegisterGraveModal({
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="ownerId">Proprietario (opcional)</Label>
+              <Label htmlFor="ownerId">Proprietário (opcional)</Label>
               <input
                 type="hidden"
                 {...form.register("ownerId", {
@@ -229,26 +250,34 @@ export function RegisterGraveModal({
                       {selectedOwnerOption
                         ? `${selectedOwnerOption.name} — ${selectedOwnerOption.cpf}`
                         : selectedOwnerId
-                          ? "Proprietario selecionado"
-                          : "Selecione um proprietario"}
+                          ? "Proprietário selecionado"
+                          : "Selecione um proprietário"}
                     </span>
                     <ChevronsUpDown className="ml-2 opacity-50 flex-shrink-0" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-(--radix-popover-trigger-width) p-0">
+                <PopoverContent
+                  align="start"
+                  side="bottom"
+                  avoidCollisions={false}
+                  className="w-(--radix-popover-trigger-width) p-0"
+                >
                   <Command shouldFilter={false}>
                     <CommandInput
-                      placeholder="Buscar proprietario por nome ou CPF"
+                      placeholder="Buscar proprietário por nome ou CPF"
                       value={ownerSearch}
                       onValueChange={setOwnerSearch}
                     />
-                    <CommandList className="max-h-[300px] md:max-h-[400px] overflow-y-auto">
-                      <CommandEmpty>Nenhum proprietario encontrado.</CommandEmpty>
+                    <CommandList className="max-h-56 min-h-20 overflow-y-auto">
+                      <CommandEmpty>Nenhum proprietário encontrado.</CommandEmpty>
                       <CommandGroup>
                         <CommandItem
-                          value=""
+                          value="sem-proprietario"
                           onSelect={() => {
-                            form.setValue("ownerId", undefined, { shouldDirty: true })
+                            form.setValue("ownerId", undefined, {
+                              shouldDirty: true,
+                              shouldValidate: true,
+                            })
                             setIsOwnerComboboxOpen(false)
                           }}
                         >
@@ -258,7 +287,7 @@ export function RegisterGraveModal({
                               !selectedOwnerId ? "opacity-100" : "opacity-0",
                             )}
                           />
-                          Sem proprietario
+                          Sem proprietário
                         </CommandItem>
                         {selectedOwnerId && !selectedOwnerOption ? (
                           <CommandItem
@@ -269,7 +298,7 @@ export function RegisterGraveModal({
                             }}
                           >
                             <Check className="mr-2 opacity-100" />
-                            Proprietario selecionado
+                            Proprietário selecionado
                           </CommandItem>
                         ) : null}
                         {owners.map((owner) => (
@@ -295,9 +324,9 @@ export function RegisterGraveModal({
                   </Command>
                 </PopoverContent>
               </Popover>
-              {isOwnersFetching ? (
-                <p className="text-xs text-muted-foreground">Buscando proprietarios...</p>
-              ) : null}
+              <p className="min-h-4 text-xs text-muted-foreground">
+                {isOwnersFetching ? "Buscando proprietários..." : ""}
+              </p>
               {form.formState.errors.ownerId?.message ? (
                 <p className="text-xs text-destructive">
                   {form.formState.errors.ownerId.message}
